@@ -1,0 +1,29 @@
+{
+  "name": "nft_marketplace_backend",
+  "version": "1.0.0",
+  "description": "off chaine logic",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaiserkernel/nft_marketplace_backend.git"
+  },
+  "keywords": [
+    "express.js",
+    "mongodb"
+  ],
+  "author": "kernelkaiser",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kaiserkernel/nft_marketplace_backend/issues"
+  },
+  "homepage": "https://github.com/kaiserkernel/nft_marketplace_backend#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.12.1"
+  }
+}

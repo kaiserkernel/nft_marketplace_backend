@@ -9,8 +9,8 @@ app.use(express.json());
 app.use(cors());
 
 // Import routes
-const userRoutes = require("./routes/userRoutes");
-app.use("/api/users", userRoutes);
+const collectionRoutes = require("./routes/collection");
+app.use("/api/collection", collctionRoutes);
 
 // Export app for use in server.js
 module.exports = app;

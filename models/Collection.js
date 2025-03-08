@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 
 const CollectionSchema = new mongoose.Schema({
     name: String,
+    symbol: String,
     description: String,
-    avatar: String,   // IPFS URL
-    banner: String,   // IPFS URL
-    metadataURI: String, // IPFS metadata URL
+    image: String,
+    metadataURI: String,
+    owner: String,
     contractAddress: String,
-    creator: String, // Wallet address
     createdAt: { type: Date, default: Date.now }
 });
 

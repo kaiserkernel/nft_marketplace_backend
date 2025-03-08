@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { saveCollection, getAllCollection } = require("../controllers/collectionController");
 
-const saveCollection = require("../controllers/collectionController");
-
-router("/create", saveCollection)
+router.post("/create", saveCollection);
+router.post("/", getAllCollection);
 
 module.exports = router;

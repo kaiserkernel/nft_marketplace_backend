@@ -10,7 +10,7 @@ app.use(cors());
 
 // Import routes
 const collectionRoutes = require("./routes/collection");
-app.use("/api/collection", collctionRoutes);
+app.use("/api/collection", collectionRoutes);
 
 // Export app for use in server.js
 module.exports = app;

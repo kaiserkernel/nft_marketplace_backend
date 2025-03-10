@@ -28,7 +28,10 @@ const getOwnerCollection = async (req, res) => {
       res.status(404).json({error: ""});
     }
 
-    const collections = await Collection.find({owner});
+    // Convert the input owner address to lowercase
+    const normalizedOwner = owner.toLowerCase();
+
+    const collections = await Collection.find({ owner: { $regex: new RegExp(`^${normalizedOwner}$`, 'i')} });
     res.status(200).json({message: "Owner get collections successfully", collection: collections});
   } catch (error) {
     console.log(error, 'find collection of owner');

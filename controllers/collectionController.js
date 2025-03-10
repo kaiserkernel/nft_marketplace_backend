@@ -21,6 +21,21 @@ const createCollection = async (req, res) => {
   }
 };
 
+const getOwnerCollection = async (req, res) => {
+  try {
+    const { owner } = req.body;
+    if (!owner) {
+      res.status(404).json({error: ""});
+    }
+
+    const collections = await Collection.find({owner});
+    res.status(200).json({message: "Owner get collections successfully", collection: collections});
+  } catch (error) {
+    console.log(error, 'find collection of owner');
+    res.status(500).json({ message: "Failed to retrieve collection of owner", msg: [error.message] })
+  }
+}
+
 const getAllCollection = async (req, res) => {
     try {
         const allCollection = await Collection.find();
@@ -30,4 +45,4 @@ const getAllCollection = async (req, res) => {
     }
 }
 
-module.exports = { createCollection, getAllCollection };
+module.exports = { createCollection, getAllCollection, getOwnerCollection };

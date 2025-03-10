@@ -1,3 +1,4 @@
+const { default: axios } = require("axios");
 const Collection = require("../models/Collection");
 
 // Create and save a new collection
@@ -48,4 +49,15 @@ const getAllCollection = async (req, res) => {
     }
 }
 
-module.exports = { createCollection, getAllCollection, getOwnerCollection };
+const getMetadata = async (req, res) => {
+  try {
+    const {uri} = req.body;
+    const {data} = await axios.get(uri);
+    res.status(200).json({message: "Collection metadata fetched successfully", data});
+  } catch (error) {
+    console.log(error, 'error')
+    res.status(500).json({ message: "Failed to fetch meta data of collection", msg: [error.message] });
+  }
+}
+
+module.exports = { createCollection, getAllCollection, getOwnerCollection, getMetadata };

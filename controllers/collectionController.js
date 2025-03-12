@@ -43,7 +43,7 @@ const getOwnerCollection = async (req, res) => {
 const getAllCollection = async (req, res) => {
     try {
         const allCollection = await Collection.find();
-        res.status(200).json({message: "Collection fetched successfully", collections: allCollection});
+        res.status(200).json({message: "Collection fetched successfully", data: allCollection});
     } catch (error) {
         res.status(500).json({ message: "Failed to fetch collection", msg: [error.message] });
     }

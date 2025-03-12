@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
 const NFTSchema = new mongoose.Schema({
-    collectionAddress: String,
+    collection: {
+        type: Schema.Types.ObjectId,
+        ref: "Collection"
+    },
     owner: String,
     tokenId: Number,
     tokenURI: String,

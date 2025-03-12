@@ -1,12 +1,31 @@
+const Collection = require("../models/Collection");
 const NFT = require("../models/NFT");
+
+const convertToObjectID = (_str) => {
+        // Check if collection string can be converted to a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(_str)) {
+            return { success: false};
+        }
+
+        // Convert the string 'collection' into an ObjectId
+        const _collection = mongoose.Types.ObjectId(collection);
+        return { success: true, data: _collection };
+}
 
 // Mint nft
 const mintNFT = async (req, res) => {
     try {
-        const { collectionAddress, owner, tokenId, tokenURI, royalty } = req.body;
+        const { collection, owner, tokenId, tokenURI, royalty } = req.body;
+
+        // Validate inputs
+        if (!collection || !owner || !tokenId || !tokenURI || !royalty) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const collectionData = await Collection.findOne({contractAddress: collection});
 
         const newNFT = new NFT({
-            collectionAddress,
+            collection: collectionData._id,
             owner,
             tokenId,
             tokenURI,
@@ -33,8 +52,14 @@ const getAllNFT = async (req, res) => {
 
 const getNFTofCollection = async (req, res) => {
     try {
-        const { contractAddress } = req.body;
-        const nfts = await NFT.find({contractAddress});
+        const { collection } = req.body;
+
+        // const {success, data} = convertToObjectID(collection);
+
+        // if (!success) 
+        //     return res.status(400).json({ msg: ["Invalid collection ObjectId format"] });
+
+        const nfts = await NFT.find({collection});
 
         return res.status(200).json({ message: "Gel nft of collection successfully", nfts })
     } catch (error) {
@@ -43,4 +68,24 @@ const getNFTofCollection = async (req, res) => {
     }
 }
 
-module.exports = { mintNFT, getAllNFT, getNFTofCollection }
+const getOwnNFT = async (req, res) => {
+    try {
+        const { address } = req.body;
+    
+        if (!address) 
+            return res.status(400).json({ message: "Input Error", msg: ["Please input address"] });
+        
+        // Convert the input owner address to lowercase
+        const normalizedOwner = address.toLowerCase();
+        
+        
+        const nfts = await NFT.find({owner: { $regex: new RegExp(`^${normalizedOwner}$`, 'i')}}).populate("collection");
+
+        return res.status(200).json({message: "Get owned nft successfully", nfts});
+    } catch (error) {
+        console.log(error, "Get owned nft error");
+        res.status(500).json({ message: "Faile to retrieve own nfts", msg: [error.msg] })
+    }
+}
+
+module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT }

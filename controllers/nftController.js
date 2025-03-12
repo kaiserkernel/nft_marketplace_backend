@@ -84,8 +84,25 @@ const getOwnNFT = async (req, res) => {
         return res.status(200).json({message: "Get owned nft successfully", nfts});
     } catch (error) {
         console.log(error, "Get owned nft error");
-        res.status(500).json({ message: "Faile to retrieve own nfts", msg: [error.msg] })
+        res.status(500).json({ message: "Failed to retrieve own nfts", msg: [error.msg] })
     }
 }
 
-module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT }
+const setPrice = async (req, res) => {
+    try {
+        const { _id, tokenId, price } = req.body;
+        
+        if (!_id || !price) 
+            return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
+
+        // Use await to ensure the operation completes
+        await NFT.findOneAndUpdate(({_id, tokenId}), { price }, { new: true });
+
+        res.status(200).json({ message: "Price set successfully" });
+    } catch (error) {
+        console.log(error, "Get owned nft error");
+        res.status(500).json({ message: "Failed to set price of nft", msg: [error.msg] })
+    }
+}
+
+module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setPrice }

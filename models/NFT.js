@@ -10,6 +10,10 @@ const NFTSchema = new mongoose.Schema({
     tokenId: Number,
     tokenURI: String,
     royalty: Number,
+    price: {
+        type: Number,
+        default: 0
+    },
     createdAt: {
         type: Date,
         default: Date.now

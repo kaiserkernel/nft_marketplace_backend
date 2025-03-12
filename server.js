@@ -30,9 +30,11 @@ app.use(express.json());
 // Import routes
 const collectionRoutes = require("./routes/collection");
 const nftRoutes = require("./routes/nft");
+const metaDataRoutes = require("./routes/metaData");
 
 app.use("/api/collection", collectionRoutes);
 app.use("/api/nft", nftRoutes);
+app.use("/api/metaData", metaDataRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`)

@@ -49,15 +49,4 @@ const getAllCollection = async (req, res) => {
     }
 }
 
-const getMetadata = async (req, res) => {
-  try {
-    const {uri} = req.body;
-    const {data} = await axios.get(uri);
-    res.status(200).json({message: "Collection metadata fetched successfully", data});
-  } catch (error) {
-    console.log(error, 'error')
-    res.status(500).json({ message: "Failed to fetch meta data of collection", msg: [error.message] });
-  }
-}
-
-module.exports = { createCollection, getAllCollection, getOwnerCollection, getMetadata };
+module.exports = { createCollection, getAllCollection, getOwnerCollection };

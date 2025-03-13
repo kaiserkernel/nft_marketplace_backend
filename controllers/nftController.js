@@ -78,7 +78,6 @@ const getOwnNFT = async (req, res) => {
         // Convert the input owner address to lowercase
         const normalizedOwner = address.toLowerCase();
         
-        
         const nfts = await NFT.find({owner: { $regex: new RegExp(`^${normalizedOwner}$`, 'i')}}).populate("collection");
 
         return res.status(200).json({message: "Get owned nft successfully", nfts});

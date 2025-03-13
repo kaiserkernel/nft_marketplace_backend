@@ -105,4 +105,20 @@ const setPrice = async (req, res) => {
     }
 }
 
-module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setPrice }
+const buyNFT = async (req, res) => {
+    try {
+        const { _id, tokenId, owner } = req.body;
+        
+        if (!_id || !owner) 
+            return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
+    
+        await NFT.findOneAndUpdate(({_id, tokenId}, { owner }, { new: true }));
+    
+        res.status(200).json({ message: "Failed to buy nft", msg: [error.msg] })
+    } catch (error) {
+        console.log(error, "Buy nft error");
+        res.status(500).json({ message: "Failed to buy nft", msg: [error.msg] })
+    }
+}
+
+module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setPrice, buyNFT }

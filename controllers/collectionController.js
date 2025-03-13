@@ -43,7 +43,16 @@ const getOwnerCollection = async (req, res) => {
 const getAllCollection = async (req, res) => {
     try {
         const allCollection = await Collection.find();
-        res.status(200).json({message: "Collection fetched successfully", data: allCollection});
+        
+        // Fetch metadata in parallel
+        const _allCollection = await Promise.all(
+          allCollection.map(async (log) => {
+              const { data } = await axios.get(log.metadataURI); // Ensure axios uses `.get()`
+              return { ...log.toObject(), ...data }; // Convert Mongoose document to plain object
+          })
+      );
+
+      res.status(200).json({message: "Collection fetched successfully", data: _allCollection});
     } catch (error) {
         res.status(500).json({ message: "Failed to fetch collection", msg: [error.message] });
     }

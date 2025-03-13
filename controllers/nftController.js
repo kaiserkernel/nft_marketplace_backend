@@ -1,5 +1,6 @@
 const Collection = require("../models/Collection");
 const NFT = require("../models/NFT");
+const mongoose = require("mongoose");
 
 const convertToObjectID = (_str) => {
         // Check if collection string can be converted to a valid ObjectId
@@ -8,7 +9,7 @@ const convertToObjectID = (_str) => {
         }
 
         // Convert the string 'collection' into an ObjectId
-        const _collection = mongoose.Types.ObjectId(collection);
+        const _collection = new mongoose.Types.ObjectId(_str);
         return { success: true, data: _collection };
 }
 
@@ -54,14 +55,13 @@ const getNFTofCollection = async (req, res) => {
     try {
         const { collection } = req.body;
 
-        // const {success, data} = convertToObjectID(collection);
+        const {success, data} = convertToObjectID(collection);
 
-        // if (!success) 
-        //     return res.status(400).json({ msg: ["Invalid collection ObjectId format"] });
+        if (!success) 
+            return res.status(400).json({ msg: ["Invalid collection ObjectId format"] });
 
-        const nfts = await NFT.find({collection});
-
-        return res.status(200).json({ message: "Gel nft of collection successfully", nfts })
+        const nfts = await NFT.find({collection: data});
+        return res.status(200).json({ message: "Gel nft of collection successfully", data: nfts })
     } catch (error) {
         console.log(error, 'Get NFT of a collection');
         res.status(500).json({ message: "Failed to retrieve nft of collection", msg: [error.message] })

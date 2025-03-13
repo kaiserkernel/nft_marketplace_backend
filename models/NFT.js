@@ -17,6 +17,10 @@ const NFTSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    lastPrice: {
+        type: Number,
+        default: 0
     }
 });
 

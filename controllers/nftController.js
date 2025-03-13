@@ -107,12 +107,12 @@ const setPrice = async (req, res) => {
 
 const buyNFT = async (req, res) => {
     try {
-        const { _id, tokenId, owner } = req.body;
+        const { _id, owner, tokenId, price } = req.body;
         
         if (!_id || !owner) 
             return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
     
-        await NFT.findOneAndUpdate(({_id, tokenId}, { owner }, { new: true }));
+        await NFT.findOneAndUpdate(({_id, tokenId}, { owner, lastPrice: price }, { new: true }));
     
         res.status(200).json({ message: "Failed to buy nft", msg: [error.msg] })
     } catch (error) {

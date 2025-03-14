@@ -117,13 +117,13 @@ const setFixedPrice = async (req, res) => {
 
 const setAuction = async (req, res) => {
     try {
-        const { _id, startBid, bidEndDate } = req.body;
+        const { _id, tokenId, startBid, bidEndDate } = req.body;
 
         if (!_id || startBid === undefined || bidEndDate === undefined) 
             return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
 
         // Find the NFT by _id
-        const nft = await NFT.findOne({ _id });
+        const nft = await NFT.findOne({ _id, tokenId });
 
         if (!nft) {
             return res.status(404).json({ message: "NFT not found" });

@@ -15,7 +15,7 @@ connectDB();
 // CORS Configuration
 const corsOptions = {
     origin: [
-        // "http://localhost:3000"
+        // "http://localhost:4000"
         "http://172.86.66.70:4000"
     ],
     // origin: "*",

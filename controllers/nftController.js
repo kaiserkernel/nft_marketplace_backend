@@ -230,7 +230,7 @@ const getTopAuctions = async (req, res) => {
             .sort({ startBid: -1 }) // Sort in descending order (highest startBid first)
             .limit(5); // Get only the top 5
 
-        res.status(200).json({ auctions: topAuctions });
+        res.status(200).json({ data: topAuctions });
     } catch (error) {
         console.error("Error fetching top auctions:", error);
         res.status(500).json({ message: "Failed to fetch top auctions", error: error.message });

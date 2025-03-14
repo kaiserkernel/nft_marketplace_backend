@@ -87,17 +87,60 @@ const getOwnNFT = async (req, res) => {
     }
 }
 
-const setPrice = async (req, res) => {
+const setFixedPrice = async (req, res) => {
     try {
         const { _id, tokenId, price } = req.body;
         
         if (!_id || !price) 
             return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
 
-        // Use await to ensure the operation completes
-        await NFT.findOneAndUpdate(({_id, tokenId}), { price }, { new: true });
+        // Find the NFT by _id and tokenId
+        const nft = await NFT.findOne({ _id, tokenId });
+
+        if (!nft) {
+            return res.status(404).json({ message: "NFT not found" });
+        }
+
+        // Update the price
+        nft.priceType = "fixed";
+        nft.price = price;
+
+        // Save the document to trigger pre-save middleware
+        await nft.save();
 
         res.status(200).json({ message: "Price set successfully" });
+    } catch (error) {
+        console.log(error, "Get owned nft error");
+        res.status(500).json({ message: "Failed to set price of nft", msg: [error.msg] })
+    }
+}
+
+const setAuction = async (req, res) => {
+    try {
+        const { _id, startBid, bidEndDate } = req.body;
+
+        if (!_id || startBid === undefined || bidEndDate === undefined) 
+            return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
+
+        // Find the NFT by _id
+        const nft = await NFT.findOne({ _id });
+
+        if (!nft) {
+            return res.status(404).json({ message: "NFT not found" });
+        }
+        
+        // Set the priceType to auction
+        nft.priceType = 'auction';
+
+        // Set the auction-related fields
+        nft.startBid = startBid;
+        nft.bidHistory = [];
+        nft.bidEndDate = new Date(bidEndDate); // Ensure it's a proper date object
+        
+        // Save the document to trigger pre-save middleware
+        await nft.save();
+
+        res.status(200).json({ message: "Auction set successfully" });
     } catch (error) {
         console.log(error, "Get owned nft error");
         res.status(500).json({ message: "Failed to set price of nft", msg: [error.msg] })
@@ -125,4 +168,55 @@ const buyNFT = async (req, res) => {
     }
 }
 
-module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setPrice, buyNFT }
+const bidNFT = async (req, res) => {
+    try {
+        const { _id, tokenId, bidAmount } = req.body;
+
+        if (!_id || bidAmount === undefined || bidAmount === null) 
+            return res.status(400).json({ message: "Input Error", msg: ["Please provide all required fields"] });
+
+        // Find the NFT by _id
+        const nft = await NFT.findOne({ _id });
+
+        if (!nft) {
+            return res.status(404).json({ msg: ["NFT not found"] });
+        }
+
+        if (nft.price !== "auction") {
+            return res.status(404).json({ msg: ["NFT is not set as auction"] });
+        }
+        
+        // Check if the auction has ended
+        if (new Date(nft.bidEndDate) < new Date()) {
+            return res.status(400).json({ msg: ["Auction has already ended"] });
+        }
+
+        // Determine the current highest bid (startBid if no bids yet)
+        let currentHighestBid = nft.startBid;
+        if (nft.bidHistory.length > 0) {
+            // Get the most recent bid from bidHistory
+            currentHighestBid = nft.bidHistory[nft.bidHistory.length - 1].price;
+        }
+
+        // Check if the bid amount is higher than the current highest bid
+        if (bidAmount <= currentHighestBid) {
+            return res.status(400).json({ message: "Bid amount must be higher than the current highest bid" });
+        }
+
+        // Add the new bid to the bidHistory
+        nft.bidHistory.push({
+            price: bidAmount,
+            date: new Date()
+        });
+
+        // Save the updated NFT document
+        await nft.save();
+
+        res.status(200).json({ message: "Bid placed successfully", currentPrice: nft.price });
+    } catch (error) {
+        console.log(error, "Auction nft error");
+        res.status(500).json({ message: "Failed to buy nft", msg: [error.msg] })
+    }
+}
+
+module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setFixedPrice, buyNFT, setAuction, bidNFT }

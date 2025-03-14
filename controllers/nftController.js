@@ -129,6 +129,9 @@ const setAuction = async (req, res) => {
             return res.status(404).json({ message: "NFT not found" });
         }
         
+        if (nft.bidHistory && nft.bidHistory.length > 0)
+            return res.status(400).json({msg: ["Some already bid. Can't reset auction"]});
+
         // Calculate the correct auction end timestamp
         const auctionEndTimestamp = new Date().getTime() + bidEndDate * 1000; // Convert duration to milliseconds
         const auctionEndDate = new Date(auctionEndTimestamp); // Convert timestamp to Date object
@@ -178,7 +181,7 @@ const bidNFT = async (req, res) => {
             return res.status(400).json({ message: "Input Error", msg: ["Please provide all required fields"] });
 
         // Find the NFT by _id
-        const nft = await NFT.findOne({ _id });
+        const nft = await NFT.findOne({ _id, tokenId });
 
         if (!nft) {
             return res.status(404).json({ msg: ["NFT not found"] });

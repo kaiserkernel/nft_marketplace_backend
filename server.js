@@ -15,7 +15,8 @@ connectDB();
 // CORS Configuration
 const corsOptions = {
     origin: [
-        "http://localhost:3000"
+        // "http://localhost:3000"
+        "http://172.86.66.70:4000"
     ],
     // origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -36,9 +37,13 @@ app.use("/api/collection", collectionRoutes);
 app.use("/api/nft", nftRoutes);
 app.use("/api/metaData", metaDataRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server is running on PORT ${PORT}`)
 })
+
+// app.listen(PORT, () => {
+//     console.log(`Server is running on PORT ${PORT}`)
+// })
 
 // Export app for use in server.js
 module.exports = app;

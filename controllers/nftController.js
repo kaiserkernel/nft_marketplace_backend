@@ -129,13 +129,15 @@ const setAuction = async (req, res) => {
             return res.status(404).json({ message: "NFT not found" });
         }
         
-        // Set the priceType to auction
-        nft.priceType = 'auction';
+        // Calculate the correct auction end timestamp
+        const auctionEndTimestamp = new Date().getTime() + bidEndDate * 1000; // Convert duration to milliseconds
+        const auctionEndDate = new Date(auctionEndTimestamp); // Convert timestamp to Date object
 
-        // Set the auction-related fields
+        // Set auction details
+        nft.priceType = "auction";
         nft.startBid = startBid;
         nft.bidHistory = [];
-        nft.bidEndDate = new Date(bidEndDate); // Ensure it's a proper date object
+        nft.bidEndDate = auctionEndDate; // Save correct auction end date
         
         // Save the document to trigger pre-save middleware
         await nft.save();
@@ -182,7 +184,7 @@ const bidNFT = async (req, res) => {
             return res.status(404).json({ msg: ["NFT not found"] });
         }
 
-        if (nft.price !== "auction") {
+        if (nft.priceType !== "auction") {
             return res.status(404).json({ msg: ["NFT is not set as auction"] });
         }
         
@@ -212,7 +214,7 @@ const bidNFT = async (req, res) => {
         // Save the updated NFT document
         await nft.save();
 
-        res.status(200).json({ message: "Bid placed successfully", currentPrice: nft.price });
+        res.status(200).json({ message: "Bid placed successfully", currentHighestBid: bidAmount });
     } catch (error) {
         console.log(error, "Auction nft error");
         res.status(500).json({ message: "Failed to buy nft", msg: [error.msg] })

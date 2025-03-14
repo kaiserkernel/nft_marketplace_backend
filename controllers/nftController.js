@@ -119,7 +119,7 @@ const setAuction = async (req, res) => {
     try {
         const { _id, tokenId, startBid, bidEndDate } = req.body;
 
-        if (!_id || startBid === undefined || bidEndDate === undefined) 
+        if (!_id || !tokenId || startBid === undefined || bidEndDate === undefined) 
             return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
 
         // Find the NFT by _id
@@ -224,4 +224,17 @@ const bidNFT = async (req, res) => {
     }
 }
 
-module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setFixedPrice, buyNFT, setAuction, bidNFT }
+const getTopAuctions = async (req, res) => {
+    try {
+        const topAuctions = await NFT.find({ priceType: "auction" }) // Filter only auction NFTs
+            .sort({ startBid: -1 }) // Sort in descending order (highest startBid first)
+            .limit(5); // Get only the top 5
+
+        res.status(200).json({ auctions: topAuctions });
+    } catch (error) {
+        console.error("Error fetching top auctions:", error);
+        res.status(500).json({ message: "Failed to fetch top auctions", error: error.message });
+    }
+};
+
+module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setFixedPrice, buyNFT, setAuction, bidNFT, getTopAuctions }

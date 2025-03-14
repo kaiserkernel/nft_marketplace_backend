@@ -1,5 +1,5 @@
 const express = require("express");
-const { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setFixedPrice, buyNFT, setAuction, bidNFT } = require("../controllers/nftController");
+const { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setFixedPrice, buyNFT, setAuction, bidNFT, getTopAuctions } = require("../controllers/nftController");
 
 const router = express.Router();
 
@@ -18,5 +18,7 @@ router.post("/buy", buyNFT);
 router.post("/auction", setAuction);
 
 router.post("/bid", bidNFT);
+
+router.get("/top-auction", getTopAuctions);
 
 module.exports = router;

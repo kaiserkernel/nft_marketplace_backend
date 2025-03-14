@@ -36,15 +36,14 @@ const NFTSchema = new Schema({
     },
     priceType: {
         type: String,
-        enum: ['fixed', 'auction'],
-        required: true
+        enum: ['fixed', 'auction']
     }
 });
 
 // Pre-save hook to modify fields based on priceType
 NFTSchema.pre('save', function(next) {
     // Ensure priceType change is only allowed after auction ends
-    const auctionOngoing = this.bidEndDate && new Date(this.bidEndDate) > new Date();
+    const auctionOngoing = this.priceType === "auction" && (this.bidHistory && this.bidHistory.length > 0);
 
     if (this.isModified('priceType')) {
         // Prevent switching to 'fixed' if auction is ongoing

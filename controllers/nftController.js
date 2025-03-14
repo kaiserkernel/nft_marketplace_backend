@@ -236,7 +236,7 @@ const getTopAuctions = async (req, res) => {
             const { data } = await axios.get(log.tokenURI);
             return {
                 ...data,
-                _id: log._id
+                ...log,
             }
         }));
 

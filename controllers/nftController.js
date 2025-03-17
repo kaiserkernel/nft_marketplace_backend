@@ -190,7 +190,7 @@ const buyNFT = async (req, res) => {
         if (!success) 
             return res.status(400).json({ msg: ["Invalid collection ObjectId format"] });
 
-        await NFT.findOneAndUpdate(({collection: data, tokenId}, { owner, lastPrice: price }, { new: true }));
+        await NFT.findOneAndUpdate(({collection: data, tokenId}, { owner, lastPrice: price, price: null }, { new: true }));
     
         res.status(200).json({ message: "Failed to buy nft", msg: [error.msg] })
     } catch (error) {
@@ -201,9 +201,9 @@ const buyNFT = async (req, res) => {
 
 const bidNFT = async (req, res) => {
     try {
-        const { _id, tokenId, bidAmount, owner } = req.body;
+        const { _id, tokenId, bidAmount, bidder } = req.body;
 
-        if (!_id || bidAmount === undefined || bidAmount === null || !owner) 
+        if (!_id || bidAmount === undefined || bidAmount === null || !bidder) 
             return res.status(400).json({ message: "Input Error", msg: ["Please provide all required fields"] });
 
         // Find the NFT by _id
@@ -236,7 +236,7 @@ const bidNFT = async (req, res) => {
 
         // Add the new bid to the bidHistory
         nft.bidHistory.push({
-            owner,
+            bidder,
             price: bidAmount,
             date: new Date(),
         });
@@ -272,4 +272,65 @@ const getTopAuctions = async (req, res) => {
     }
 };
 
-module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setFixedPrice, buyNFT, setAuction, bidNFT, getTopAuctions, setNotForSale }
+const getAuctionInfo = async (req, res) => {
+    try {
+        const { _id } = req.body;
+
+        const nft = await NFT.findById(_id).populate("collection");
+        
+        if (!nft) {
+            return res.status(404).json({ msg: ["NFT not found"] });
+        }
+        
+        const { data } = await axios.get(nft.tokenURI);
+
+        nft.name = data.name;
+        nft.image = data.image;
+        nft.description = data.description;
+        nft.attributes = data.attributes;
+
+        const _data = { ...nft._doc, ...data }
+
+        res.status(200).json({ data: _data });
+    } catch (error) {
+        console.error("Error fetching auction information:", error);
+        res.status(500).json({ message: "Failed to fetch auction information", error: error.message });
+    }
+}
+
+const endAuction = async (req, res) => {
+    try {
+      const { _id, winner, tokenId, winningBid } = req.body;
+
+        if (!_id || !winner || !tokenId || !winningBid) 
+            return res.status(400).json({ message: "Input Error", msg: ["Please provide all required fields"] });
+
+        // Find the NFT by _id
+        const nft = await NFT.findOne({ _id, tokenId });
+
+        if (!nft) {
+            return res.status(404).json({ msg: ["NFT not found"] });
+        }
+        
+        if (nft.priceType !== "auction") {
+            return res.status(404).json({ msg: ["NFT is not set as auction"] });
+        }
+        
+        // Check if the auction has ended
+        if (new Date(nft.bidEndDate) > new Date()) {
+            return res.status(400).json({ msg: ["Auction isn't ended yet"] });
+        }
+
+        nft.priceType = "not_for_sale";
+        nft.owner = winner;
+        nft.lastPrice = winningBid;
+
+        await nft.save();
+        res.status(200).json({ message: "Auction ended successfully"});
+    } catch (error) {
+        console.error("Error ending auction:", error);
+        res.status(500).json({ message: "Failed to end auction", error: error.message });
+    }
+}
+
+module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setFixedPrice, buyNFT, setAuction, bidNFT, getTopAuctions, setNotForSale, getAuctionInfo, endAuction }

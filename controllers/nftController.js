@@ -324,7 +324,8 @@ const endAuction = async (req, res) => {
         nft.priceType = "not_for_sale";
         nft.owner = winner;
         nft.lastPrice = winningBid;
-
+        nft.price = null;
+        
         await nft.save();
         res.status(200).json({ message: "Auction ended successfully"});
     } catch (error) {

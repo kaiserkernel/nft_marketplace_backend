@@ -37,7 +37,8 @@ const NFTSchema = new Schema({
     },
     priceType: {
         type: String,
-        enum: ['fixed', 'auction']
+        enum: ['fixed', 'auction', 'not_for_sale'],
+        default: 'not_for_sale'
     }
 });
 
@@ -55,6 +56,10 @@ NFTSchema.pre('save', function(next) {
         if (this.priceType === 'auction' && auctionOngoing) {
             return next(new Error("Cannot change price type to 'auction' while the auction is still ongoing."));
         }
+        // Prevent switching to 'auction' if auction is ongoing (this might be redundant but keeps the logic explicit)
+        if (this.priceType === 'not_for_sale' && auctionOngoing) {
+            return next(new Error("Cannot change price type to 'not for sale' while the auction is still ongoing."));
+        }
     }
 
     // Reset fields based on priceType
@@ -63,6 +68,11 @@ NFTSchema.pre('save', function(next) {
         this.bidHistory = [];
         this.bidEndDate = null;
     } else if (this.priceType === 'auction') {
+        this.price = null;
+    } else if (this.priceType === 'not_for_sale') {
+        this.startBid = null;
+        this.bidHistory = [];
+        this.bidEndDate = null;
         this.price = null;
     }
 

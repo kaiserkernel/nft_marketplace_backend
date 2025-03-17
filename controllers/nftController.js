@@ -89,6 +89,32 @@ const getOwnNFT = async (req, res) => {
     }
 }
 
+const setNotForSale = async (req, res) => {
+    try {
+        const { _id, tokenId } = req.body;
+        
+        if (!_id) 
+            return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
+
+        // Find the NFT by _id and tokenId
+        const nft = await NFT.findOne({ _id, tokenId });
+
+        if (!nft) {
+            return res.status(404).json({ message: "NFT not found" });
+        }
+        
+        nft.priceType = "not_for_sale";  // Ensure price is always updated
+            
+        // Save the document to trigger pre-save middleware
+        await nft.save();
+        
+        res.status(200).json({ message: "Price set successfully", data: nft });
+    } catch (error) {
+        console.log(error, "Get owned nft error");
+        res.status(500).json({ message: "Failed to set price of nft", msg: [error.msg] })
+    }
+}
+
 const setFixedPrice = async (req, res) => {
     try {
         const { _id, tokenId, price } = req.body;
@@ -102,15 +128,9 @@ const setFixedPrice = async (req, res) => {
         if (!nft) {
             return res.status(404).json({ message: "NFT not found" });
         }
-        // Update the price
-        nft.priceType = "fixed";
-
-        // Explicitly check only for `0` instead of falsy values
-        if (price === 0) {
-            nft.price = null;
-        } else {
-            nft.price = price;  // Ensure price is always updated
-        }
+        
+        nft.price = price;  // Ensure price is always updated
+            
         // Save the document to trigger pre-save middleware
         await nft.save();
         
@@ -252,4 +272,4 @@ const getTopAuctions = async (req, res) => {
     }
 };
 
-module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setFixedPrice, buyNFT, setAuction, bidNFT, getTopAuctions }
+module.exports = { mintNFT, getAllNFT, getNFTofCollection, getOwnNFT, setFixedPrice, buyNFT, setAuction, bidNFT, getTopAuctions, setNotForSale }

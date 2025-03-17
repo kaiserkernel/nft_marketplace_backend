@@ -102,8 +102,6 @@ const setFixedPrice = async (req, res) => {
         if (!nft) {
             return res.status(404).json({ message: "NFT not found" });
         }
-        console.log(price, 'price')
-        // Update the price
         // Update the price
         nft.priceType = "fixed";
 
@@ -183,9 +181,9 @@ const buyNFT = async (req, res) => {
 
 const bidNFT = async (req, res) => {
     try {
-        const { _id, tokenId, bidAmount } = req.body;
+        const { _id, tokenId, bidAmount, owner } = req.body;
 
-        if (!_id || bidAmount === undefined || bidAmount === null) 
+        if (!_id || bidAmount === undefined || bidAmount === null || !owner) 
             return res.status(400).json({ message: "Input Error", msg: ["Please provide all required fields"] });
 
         // Find the NFT by _id
@@ -218,8 +216,9 @@ const bidNFT = async (req, res) => {
 
         // Add the new bid to the bidHistory
         nft.bidHistory.push({
+            owner,
             price: bidAmount,
-            date: new Date()
+            date: new Date(),
         });
 
         // Save the updated NFT document

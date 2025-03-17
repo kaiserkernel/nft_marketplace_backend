@@ -15,6 +15,7 @@ const NFTSchema = new Schema({
         default: null
     },
     bidHistory: [{
+        owner: String,
         price: Number,
         date: Date
     }],

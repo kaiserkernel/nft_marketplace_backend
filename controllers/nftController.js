@@ -137,7 +137,7 @@ const setAuction = async (req, res) => {
         // Calculate the correct auction end timestamp
         const auctionEndTimestamp = bidEndDate * 1000; // Convert duration to milliseconds
         const auctionEndDate = new Date(auctionEndTimestamp); // Convert timestamp to Date object
-        console.log(bidEndDate, "d  ")
+        
         // Set auction details
         nft.priceType = "auction";
         nft.startBid = startBid;

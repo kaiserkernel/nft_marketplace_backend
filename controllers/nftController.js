@@ -110,7 +110,7 @@ const setFixedPrice = async (req, res) => {
         // Save the document to trigger pre-save middleware
         await nft.save();
 
-        res.status(200).json({ message: "Price set successfully" });
+        res.status(200).json({ message: "Price set successfully", data: nft });
     } catch (error) {
         console.log(error, "Get owned nft error");
         res.status(500).json({ message: "Failed to set price of nft", msg: [error.msg] })
@@ -135,9 +135,9 @@ const setAuction = async (req, res) => {
             return res.status(400).json({msg: ["Some already bid. Can't reset auction"]});
 
         // Calculate the correct auction end timestamp
-        const auctionEndTimestamp = new Date().getTime() + bidEndDate * 1000; // Convert duration to milliseconds
+        const auctionEndTimestamp = bidEndDate * 1000; // Convert duration to milliseconds
         const auctionEndDate = new Date(auctionEndTimestamp); // Convert timestamp to Date object
-
+        console.log(bidEndDate, "d  ")
         // Set auction details
         nft.priceType = "auction";
         nft.startBid = startBid;
@@ -147,7 +147,7 @@ const setAuction = async (req, res) => {
         // Save the document to trigger pre-save middleware
         await nft.save();
 
-        res.status(200).json({ message: "Auction set successfully" });
+        res.status(200).json({ message: "Auction set successfully", data: nft });
     } catch (error) {
         console.log(error, "Get owned nft error");
         res.status(500).json({ message: "Failed to set price of nft", msg: [error.msg] })
@@ -236,7 +236,7 @@ const getTopAuctions = async (req, res) => {
             const { data } = await axios.get(log.tokenURI);
             return {
                 ...data,
-                ...log,
+                ...log._doc,
             }
         }));
 

@@ -93,7 +93,7 @@ const setFixedPrice = async (req, res) => {
     try {
         const { _id, tokenId, price } = req.body;
         
-        if (!_id || !price) 
+        if (!_id) 
             return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
 
         // Find the NFT by _id and tokenId
@@ -102,14 +102,20 @@ const setFixedPrice = async (req, res) => {
         if (!nft) {
             return res.status(404).json({ message: "NFT not found" });
         }
-
+        console.log(price, 'price')
+        // Update the price
         // Update the price
         nft.priceType = "fixed";
-        nft.price = price;
 
+        // Explicitly check only for `0` instead of falsy values
+        if (price === 0) {
+            nft.price = null;
+        } else {
+            nft.price = price;  // Ensure price is always updated
+        }
         // Save the document to trigger pre-save middleware
         await nft.save();
-
+        
         res.status(200).json({ message: "Price set successfully", data: nft });
     } catch (error) {
         console.log(error, "Get owned nft error");

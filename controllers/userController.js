@@ -16,25 +16,31 @@ const registerUser = async (req, res) => {
         // Check for existing user
         const existingUser = await User.findOne({ address: { $regex: new RegExp(`^${normalizedOwner}$`, 'i') } });
 
-        if (existingUser) {
-            return res.status(400).json({ msg: ["Existing user"] });
-        }
-
         // Avatar file path (if uploaded)
         const avatar = req.file ? `/public/avatars/${req.file.filename}` : "";
 
-        // Create new user
-        const newUser = new User({
-            address: normalizedOwner,
-            name,
-            description: description || "",
-            avatar, // Save avatar URL
-            socialLinks: _socialLinks
-        });
+        if (existingUser) {
+            // Update user
+            existingUser.name = name;
+            existingUser.description = description;
+            existingUser.avatar = avatar;
+            existingUser.socialLinks = _socialLinks;
 
-        await newUser.save();
+            await existingUser.save();
+            return res.status(201).json({ message: "Successfully saved user info", data: newUser });
+        } else {
+            // Create new user
+            const newUser = new User({
+                address: normalizedOwner,
+                name,
+                description: description || "",
+                avatar, // Save avatar URL
+                socialLinks: _socialLinks
+            });
+            await newUser.save();
+            return res.status(201).json({ message: "Successfully saved user info", data: newUser });
+        }
 
-        return res.status(201).json({ message: "Successfully saved user info", data: newUser });
     } catch (error) {
         console.error("Error registering user:", error);
         return res.status(500).json({ msg: ["Failed to register user"], error: error.message });

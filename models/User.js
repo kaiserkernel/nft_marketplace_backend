@@ -16,7 +16,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: "" // Prevents undefined values
     },
-    links: {
+    avatar: {
+        type: String
+    },
+    socialLinks: {
         twitter: { type: String, trim: true },
         youtube: { type: String, trim: true },
         telegram: { type: String, trim: true },

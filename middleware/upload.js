@@ -2,8 +2,8 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Ensure the 'uploads/avatars' folder exists, create it if not
-const avatarDir = path.join(__dirname, "..", "uploads", "avatars");
+// Ensure the 'public/avatars' folder exists, create it if not
+const avatarDir = path.join(__dirname, "..", "public", "avatars");
 
 if (!fs.existsSync(avatarDir)) {
     fs.mkdirSync(avatarDir, { recursive: true }); // Creates the directory and any necessary subdirectories

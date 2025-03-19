@@ -1,13 +1,21 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+
+// Ensure the 'uploads/avatars' folder exists, create it if not
+const avatarDir = path.join(__dirname, "..", "uploads", "avatars");
+
+if (!fs.existsSync(avatarDir)) {
+    fs.mkdirSync(avatarDir, { recursive: true }); // Creates the directory and any necessary subdirectories
+}
 
 // Set storage engine
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/avatars/"); // Folder where avatars will be stored
+        cb(null, avatarDir); // Folder where avatars will be stored
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+        cb(null, Date.now() + path.extname(file.originalname)); // Unique filename based on timestamp
     }
 });
 
@@ -25,7 +33,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ 
     storage, 
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // Limit 5MB per image
+    limits: { fileSize: 5 * 1024 * 1024 } // Limit file size to 5MB
 });
 
 module.exports = upload;

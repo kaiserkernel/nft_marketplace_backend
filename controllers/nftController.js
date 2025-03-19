@@ -143,12 +143,19 @@ const setFixedPrice = async (req, res) => {
             return res.status(404).json({ message: "NFT not found" });
         }
         
-        nft.price = price;  // Ensure price is always updated
+        nft.priceType = "fixed";
+        nft.price = Number(price);  // Ensure price is always updated
             
         // Save the document to trigger pre-save middleware
         await nft.save();
+        const nftData = await nft.populate("collection");
+        const { data } = await axios.get(nftData.tokenURI);
+        const nftInfo = {
+            ...data,
+            ...nftData._doc,
+        }
         
-        res.status(200).json({ message: "Price set successfully", data: nft });
+        res.status(200).json({ message: "Price set successfully", data: nftInfo });
     } catch (error) {
         console.log(error, "Get owned nft error");
         res.status(500).json({ message: "Failed to set price of nft", msg: [error.msg] })

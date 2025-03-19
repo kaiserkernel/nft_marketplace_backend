@@ -12,7 +12,7 @@ const NFTSchema = new Schema({
     royalty: Number,
     startBid: {
         type: Number,
-        default: null
+        default: 0
     },
     bidHistory: [{
         bidder: String,
@@ -25,7 +25,7 @@ const NFTSchema = new Schema({
     },
     price: {
         type: Number,
-        default: null
+        default: 0
     },
     createdAt: {
         type: Date,
@@ -64,17 +64,19 @@ NFTSchema.pre('save', function(next) {
 
     // Reset fields based on priceType
     if (this.priceType === 'fixed') {
-        this.startBid = null;
+        this.startBid = 0;
         this.bidHistory = [];
         this.bidEndDate = null;
     } else if (this.priceType === 'auction') {
-        this.price = null;
+        this.price = 0;
     } else if (this.priceType === 'not_for_sale') {
-        this.startBid = null;
+        this.startBid = 0;
         this.bidHistory = [];
         this.bidEndDate = null;
         this.price = null;
     }
+
+    this.price = parseFloat(this.price);
 
     next();
 });

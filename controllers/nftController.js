@@ -63,7 +63,14 @@ const getNFTofCollection = async (req, res) => {
             return res.status(400).json({ msg: ["Invalid collection ObjectId format"] });
 
         const nfts = await NFT.find({collection: data});
-        return res.status(200).json({ message: "Gel nft of collection successfully", data: nfts })
+        const _data = await Promise.all(nfts.map(async (log) => {
+            const { data } = await axios.get(log.tokenURI);
+            return {
+                ...data,
+                ...log._doc,
+            }
+        }));
+        return res.status(200).json({ message: "Gel nft of collection successfully", data: _data })
     } catch (error) {
         console.log(error, 'Get NFT of a collection');
         res.status(500).json({ message: "Failed to retrieve nft of collection", msg: [error.message] })
@@ -81,8 +88,15 @@ const getOwnNFT = async (req, res) => {
         const normalizedOwner = address.toLowerCase();
         
         const nfts = await NFT.find({owner: { $regex: new RegExp(`^${normalizedOwner}$`, 'i')}}).populate("collection");
+        const data = await Promise.all(nfts.map(async (log) => {
+            const { data } = await axios.get(log.tokenURI);
+            return {
+                ...data,
+                ...log._doc,
+            }
+        }));
 
-        return res.status(200).json({message: "Get owned nft successfully", nfts});
+        return res.status(200).json({message: "Get owned nft successfully", nfts: data});
     } catch (error) {
         console.log(error, "Get owned nft error");
         res.status(500).json({ message: "Failed to retrieve own nfts", msg: [error.msg] })

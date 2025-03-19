@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
+const path = require("path");
 
 dotenv.config();
 
@@ -27,6 +28,9 @@ const corsOptions = {
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Server static file - avatar
+app.use("/public/avatars", express.static(path.resolve(__dirname, "public", "avatars")));
 
 // Import routes
 const collectionRoutes = require("./routes/collection");

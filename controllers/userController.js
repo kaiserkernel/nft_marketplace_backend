@@ -27,7 +27,7 @@ const registerUser = async (req, res) => {
             existingUser.socialLinks = _socialLinks;
 
             await existingUser.save();
-            return res.status(201).json({ message: "Successfully saved user info", data: newUser });
+            return res.status(201).json({ message: "Successfully saved user info", data: existingUser });
         } else {
             // Create new user
             const newUser = new User({
@@ -54,7 +54,7 @@ const getUserInfo = async (req, res) => {
         const user = await User.findOne({address});
     
         if (!user) {
-            return res.status(404).json({ msg: ["User not found"] })
+            return res.status(200).json({ data: null })
         }
     
         res.status(200).json({ data: user });

@@ -39,7 +39,11 @@ const NFTSchema = new Schema({
         type: String,
         enum: ['fixed', 'auction', 'not_for_sale'],
         default: 'not_for_sale'
-    }
+    },
+    avatar: {
+        type: String, // Store image URL or path
+        default: ""   // Default to empty
+    },
 });
 
 // Pre-save hook to modify fields based on priceType

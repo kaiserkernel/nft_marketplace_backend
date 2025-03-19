@@ -8,20 +8,25 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ msg: ["Address and name are required"] });
         }
 
-        // Convert the input owner address to lowercase
+        // Normalize address
         const normalizedOwner = address.toLowerCase();
         
-        // Check if the user already exists (case-insensitive)
+        // Check for existing user
         const existingUser = await User.findOne({ address: { $regex: new RegExp(`^${normalizedOwner}$`, 'i') } });
 
         if (existingUser) {
             return res.status(400).json({ msg: ["Existing user"] });
         }
 
+        // Avatar file path (if uploaded)
+        const avatar = req.file ? `/uploads/avatars/${req.file.filename}` : "";
+
+        // Create new user
         const newUser = new User({
-            address: normalizedOwner, // Ensure address is always stored in lowercase
+            address: normalizedOwner,
             name,
-            description: description || "", // Default to empty string if undefined
+            description: description || "",
+            avatar, // Save avatar URL
             links
         });
 

@@ -32,6 +32,17 @@ app.use(express.json());
 // Server static file - avatar
 app.use("/public/avatars", express.static(path.resolve(__dirname, "public", "avatars")));
 
+// Serve React frontend in production
+if (process.env.NODE_ENV === 'production') {
+    // Serve static files from the React build folder
+    app.use(express.static(path.join(__dirname, "build")));
+
+    // If any route is not an API route, serve the React index.html
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
+    });
+}
+
 // Import routes
 const collectionRoutes = require("./routes/collection");
 const nftRoutes = require("./routes/nft");

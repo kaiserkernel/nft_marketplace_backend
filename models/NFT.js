@@ -31,16 +31,7 @@ const NFTSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    lastPrice: {
-        value: {
-            type: Number,
-            default:0
-        },
-        currency: {
-            type: String,
-            enum: ["BNB", "ETH"]
-        }
-    },
+    lastPrice: Number,
     priceType: {
         type: String,
         enum: ['fixed', 'auction', 'not_for_sale'],

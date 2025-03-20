@@ -18,7 +18,7 @@ const convertToObjectID = (_str) => {
 // Mint nft
 const mintNFT = async (req, res) => {
     try {
-        const { collection, owner, tokenId, tokenURI, royalty } = req.body;
+        const { collection, owner, tokenId, tokenURI, royalty, currency } = req.body;
 
         // Validate inputs
         if (!collection || !owner || !tokenId || !tokenURI || !royalty) {
@@ -32,7 +32,8 @@ const mintNFT = async (req, res) => {
             owner,
             tokenId,
             tokenURI,
-            royalty
+            royalty,
+            currency
         });
 
         await newNFT.save();
@@ -131,7 +132,7 @@ const setNotForSale = async (req, res) => {
 
 const setFixedPrice = async (req, res) => {
     try {
-        const { _id, tokenId, price, currency } = req.body;
+        const { _id, tokenId, price } = req.body;
         
         if (!_id) 
             return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
@@ -145,7 +146,6 @@ const setFixedPrice = async (req, res) => {
         
         nft.priceType = "fixed";
         nft.price = Number(price);  // Ensure price is always updated
-        nft.currency = currency;    
 
         // Save the document to trigger pre-save middleware
         await nft.save();
@@ -165,7 +165,7 @@ const setFixedPrice = async (req, res) => {
 
 const setAuction = async (req, res) => {
     try {
-        const { _id, tokenId, startBid, bidEndDate, currency } = req.body;
+        const { _id, tokenId, startBid, bidEndDate } = req.body;
 
         if (!_id || !tokenId || startBid === undefined || bidEndDate === undefined) 
             return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
@@ -189,7 +189,6 @@ const setAuction = async (req, res) => {
         nft.startBid = startBid;
         nft.bidHistory = [];
         nft.bidEndDate = auctionEndDate; // Save correct auction end date
-        nft.currency = currency;
         
         // Save the document to trigger pre-save middleware
         await nft.save();
@@ -203,7 +202,7 @@ const setAuction = async (req, res) => {
 
 const buyNFT = async (req, res) => {
     try {
-        const { collection, owner, tokenId, price, currency } = req.body;
+        const { collection, owner, tokenId, price } = req.body;
         
         if (!collection || !owner) 
             return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
@@ -218,12 +217,8 @@ const buyNFT = async (req, res) => {
             return res.status(404).json({ msg: ["Not found nft"] })
         }
 
-        if (nft.currency !== currency)
-            return res.status(400).json({ msg: ["Incorrect currency"] })
-
         nft.owner = owner,
-        nft.lastPrice.value = price;
-        nft.lastPrice.currency = nft.currency;
+        nft.lastPrice = price;
         nft.priceType = "not_for_sale";
         
         await nft.save();
@@ -237,7 +232,7 @@ const buyNFT = async (req, res) => {
 
 const bidNFT = async (req, res) => {
     try {
-        const { _id, tokenId, bidAmount, bidder, currency } = req.body;
+        const { _id, tokenId, bidAmount, bidder } = req.body;
 
         if (!_id || bidAmount === undefined || bidAmount === null || !bidder) 
             return res.status(400).json({ message: "Input Error", msg: ["Please provide all required fields"] });
@@ -258,9 +253,6 @@ const bidNFT = async (req, res) => {
 
         // Check if the bid amount is higher than the current highest bid
         if (bidAmount <= currentHighestBid) return res.status(400).json({ message: "Bid amount must be higher than the current highest bid" });
-
-        // Check curreny
-        if (nft.currency !== currency) return res.status(400).json({ msg: ["Incorrect currency"] })
 
         // Add the new bid to the bidHistory
         nft.bidHistory.push({

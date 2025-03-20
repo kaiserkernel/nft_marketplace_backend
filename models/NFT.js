@@ -32,8 +32,14 @@ const NFTSchema = new Schema({
         default: Date.now
     },
     lastPrice: {
-        type: Number,
-        default: 0
+        value: {
+            type: Number,
+            default:0
+        },
+        currency: {
+            type: String,
+            enum: ["BNB", "ETH"]
+        }
     },
     priceType: {
         type: String,
@@ -44,6 +50,10 @@ const NFTSchema = new Schema({
         type: String, // Store image URL or path
         default: ""   // Default to empty
     },
+    currency: {
+        type: String,
+        enum: ["BNB", "ETH"]
+    }
 });
 
 // Pre-save hook to modify fields based on priceType
@@ -78,6 +88,7 @@ NFTSchema.pre('save', function(next) {
         this.bidHistory = [];
         this.bidEndDate = null;
         this.price = null;
+        this.currency = null;
     }
 
     this.price = parseFloat(this.price);

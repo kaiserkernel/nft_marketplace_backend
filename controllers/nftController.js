@@ -264,7 +264,7 @@ const bidNFT = async (req, res) => {
         // Save the updated NFT document
         await nft.save();
 
-        res.status(200).json({ message: "Bid placed successfully", currentHighestBid: bidAmount });
+        res.status(200).json({ message: "Bid placed successfully", data: nft });
     } catch (error) {
         console.log(error, "Auction nft error");
         res.status(500).json({ message: "Failed to buy nft", msg: [error.msg] })

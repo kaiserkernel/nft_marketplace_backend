@@ -223,7 +223,7 @@ const buyNFT = async (req, res) => {
         
         await nft.save();
     
-        res.status(200).json({ message: "Failed to buy nft", msg: [error.msg] })
+        res.status(200).json({ message: "Failed to buy nft", data: nft })
     } catch (error) {
         console.log(error, "Buy nft error");
         res.status(500).json({ message: "Failed to buy nft", msg: [error.msg] })

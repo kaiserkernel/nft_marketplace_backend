@@ -79,7 +79,6 @@ NFTSchema.pre('save', function(next) {
         this.bidHistory = [];
         this.bidEndDate = null;
         this.price = null;
-        this.currency = null;
     }
 
     this.price = parseFloat(this.price);

@@ -43,7 +43,7 @@ const NFTSchema = new Schema({
     },
     currency: {
         type: String,
-        enum: ["BNB", "ETH"]
+        enum: ["BNB", "ETH", "tBNB"]
     }
 });
 

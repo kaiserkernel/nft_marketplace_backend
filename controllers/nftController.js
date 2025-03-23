@@ -212,7 +212,7 @@ const buyNFT = async (req, res) => {
         if (!success) 
             return res.status(400).json({ msg: ["Invalid collection ObjectId format"] });
 
-        const nft = NFT.findOne({collection: data, tokenId});
+        const nft = await NFT.findOne({collection: data, tokenId});
         if (!nft) {
             return res.status(404).json({ msg: ["Not found nft"] })
         }
@@ -332,20 +332,24 @@ const endAuction = async (req, res) => {
             return res.status(404).json({ msg: ["NFT not found"] });
         }
         
-        if (nft.priceType !== "auction") {
-            return res.status(404).json({ msg: ["NFT is not set as auction"] });
+        if (winner === "0x0000000000000000000000000000000000000000") {
+            nft.priceType = "not_for_sale";
+            nft.price = null;
+        } else {
+            nft.priceType = "not_for_sale";
+            nft.owner = winner;
+            nft.lastPrice = winningBid;
+            nft.price = null;
         }
+        // if (nft.priceType !== "auction") {
+        //     return res.status(404).json({ msg: ["NFT is not set as auction"] });
+        // }
         
         // Check if the auction has ended
-        if (new Date(nft.bidEndDate) > new Date()) {
-            return res.status(400).json({ msg: ["Auction isn't ended yet"] });
-        }
+        // if (new Date(nft.bidEndDate) > new Date()) {
+        //     return res.status(400).json({ msg: ["Auction isn't ended yet"] });
+        // }
 
-        nft.priceType = "not_for_sale";
-        nft.owner = winner;
-        nft.lastPrice = winningBid;
-        nft.price = null;
-        
         await nft.save();
         res.status(200).json({ message: "Auction ended successfully"});
     } catch (error) {

@@ -49,6 +49,11 @@ const nftRoutes = require("./routes/nft");
 const metaDataRoutes = require("./routes/metaData");
 const userRoutes = require("./routes/user");
 
+// Test
+app.get("/", (req, res) => {
+  res.send("Server is running!");
+});
+
 app.use("/api/collection", collectionRoutes);
 app.use("/api/nft", nftRoutes);
 app.use("/api/metaData", metaDataRoutes);

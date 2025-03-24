@@ -171,10 +171,10 @@ const setAuction = async (req, res) => {
             return res.status(400).json({ message: "Input Error", msg: ["Please input fields"] });
 
         // Find the NFT by _id
-        const nft = await NFT.findOne({ _id, tokenId });
+        const nft = await NFT.findById(_id);
 
         if (!nft) {
-            return res.status(404).json({ message: "NFT not found" });
+            return res.status(400).json({ message: "NFT not found" });
         }
         
         if (nft.bidHistory && nft.bidHistory.length > 0)

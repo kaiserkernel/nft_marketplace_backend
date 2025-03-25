@@ -31,6 +31,7 @@ app.use(express.json());
 
 // Server static file - avatar
 app.use("/public/avatars", express.static(path.resolve(__dirname, "public", "avatars")));
+app.use("/public/banners", express.static(path.resolve(__dirname, "public", "banners")));
 
 // Serve React frontend in production
 if (process.env.NODE_ENV === 'production') {

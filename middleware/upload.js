@@ -2,20 +2,29 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Ensure the 'public/avatars' folder exists, create it if not
+// Directories for saving avatar and banner images
 const avatarDir = path.join(__dirname, "..", "public", "avatars");
+const bannerDir = path.join(__dirname, "..", "public", "banners");
 
+// Ensure the directories exist, create them if not
 if (!fs.existsSync(avatarDir)) {
-    fs.mkdirSync(avatarDir, { recursive: true }); // Creates the directory and any necessary subdirectories
+    fs.mkdirSync(avatarDir, { recursive: true });
+}
+if (!fs.existsSync(bannerDir)) {
+    fs.mkdirSync(bannerDir, { recursive: true });
 }
 
-// Set storage engine
+// Set storage engine for both avatar and banner images
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, avatarDir); // Folder where avatars will be stored
+        if (file.fieldname === "avatar") {
+            cb(null, avatarDir); // Store avatar images in 'avatars' folder
+        } else if (file.fieldname === "banner") {
+            cb(null, bannerDir); // Store banner images in 'banners' folder
+        }
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Unique filename based on timestamp
+        cb(null, Date.now() + path.extname(file.originalname)); // Generate a unique filename
     }
 });
 
@@ -29,11 +38,11 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// Upload middleware
+// Upload middleware for multiple fields
 const upload = multer({ 
     storage, 
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // Limit file size to 5MB
+    // limits: { fileSize: 5 * 1024 * 1024 } // Limit file size to 5MB
 });
 
 module.exports = upload;

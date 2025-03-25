@@ -19,6 +19,9 @@ const UserSchema = new mongoose.Schema({
     avatar: {
         type: String
     },
+    banner: {
+        type: String
+    },
     socialLinks: {
         twitter: { type: String, trim: true },
         youtube: { type: String, trim: true },

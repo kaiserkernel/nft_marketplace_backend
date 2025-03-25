@@ -63,12 +63,52 @@ const getNFTofCollection = async (req, res) => {
         if (!success) 
             return res.status(400).json({ msg: ["Invalid collection ObjectId format"] });
 
-        const nfts = await NFT.find({collection: data});
+        const nfts = await NFT.aggregate([
+            {
+                $match: {
+                collection: data, // Filter by collection
+                },
+            },
+            {
+                $lookup: {
+                from: "users", // The name of the `User` collection
+                let: { nftOwner: { $toLower: "$owner" } }, // Normalize NFT owner to lowercase
+                pipeline: [
+                    {
+                    $match: {
+                        $expr: { 
+                        $eq: [{ $toLower: "$address" }, "$$nftOwner"] // Compare lowercased address to lowercased owner
+                        },
+                    },
+                    },
+                ],
+                as: "user_info", // The alias for the user info
+                },
+            },
+            {
+                $unwind: {
+                path: "$user_info", // Unwind the `user_info` array to get a single object
+                preserveNullAndEmptyArrays: true, // Keep the NFT even if no match is found
+                },
+            },
+            {
+                $addFields: {
+                ownerName: "$user_info.name", // Add the name of the owner to the NFT document
+                },
+            },
+            {
+                $project: {
+                user_info: 0, // Remove the `user_info` field from the result (optional)
+                },
+            },
+        ]);
+
         const _data = await Promise.all(nfts.map(async (log) => {
             const { data } = await axios.get(log.tokenURI);
             return {
                 ...data,
-                ...log._doc,
+                ...log,
+                ownerName: log.ownerName || '',  // Add the 'name' field to the NFT object
             }
         }));
         return res.status(200).json({ message: "Get nft of collection successfully", data: _data })

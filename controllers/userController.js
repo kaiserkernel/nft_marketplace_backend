@@ -16,14 +16,18 @@ const registerUser = async (req, res) => {
         // Check for existing user
         const existingUser = await User.findOne({ address: { $regex: new RegExp(`^${normalizedOwner}$`, 'i') } });
 
-        // Avatar file path (if uploaded)
-        const avatar = req.file ? `/public/avatars/${req.file.filename}` : "";
+        // Access the uploaded files
+        const avatarImage = req.files.avatar ? `/public/avatars/${req.files.avatar[0].filename}` : null;
+        const bannerImage = req.files.banner ? `/public/banners/${req.files.banner[0].filename}` : null;
 
         if (existingUser) {
             // Update user
             existingUser.name = name;
             existingUser.description = description;
-            existingUser.avatar = avatar;
+            if (avatarImage)
+                existingUser.avatar = avatarImage;
+            if (bannerImage)
+                existingUser.banner = bannerImage;
             existingUser.socialLinks = _socialLinks;
 
             await existingUser.save();
@@ -34,7 +38,8 @@ const registerUser = async (req, res) => {
                 address: normalizedOwner,
                 name,
                 description: description || "",
-                avatar, // Save avatar URL
+                avatar: avatarImage, // Save avatar URL
+                banner: bannerImage, // Save banner URL
                 socialLinks: _socialLinks
             });
             await newUser.save();
@@ -43,7 +48,7 @@ const registerUser = async (req, res) => {
 
     } catch (error) {
         console.error("Error registering user:", error);
-        return res.status(500).json({ msg: ["Failed to register user"], error: error.message });
+        return res.status(500).json({ msg: ["Failed to register user"], msg: [error.message] });
     }
 };
 
@@ -51,7 +56,8 @@ const getUserInfo = async (req, res) => {
     const { address } = req.body;
 
     try {
-        const user = await User.findOne({address});
+        let _address = address.toLowerCase();
+        const user = await User.findOne({address: _address});
     
         if (!user) {
             return res.status(200).json({ data: null })
